@@ -5,7 +5,7 @@ use crate::position::Position;
 pub struct Bar {
     pub dimensions: Dimensions,
     pub position: Position,
-    pub game_dimensions: Dimensions
+    pub game_dimensions: Dimensions,
 }
 
 impl Bar {

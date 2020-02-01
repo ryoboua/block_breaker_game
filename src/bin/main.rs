@@ -11,20 +11,17 @@ use ggez::nalgebra as na;
 use ggez::timer;
 use ggez::{Context, GameResult};
 
-mod ball;
-mod bar;
-mod dimensions;
-mod position;
-mod vector;
+use block_breaker_game::ball::Ball;
+use block_breaker_game::bar::Bar;
+use block_breaker_game::dimensions::Dimensions;
+use block_breaker_game::position::Position;
+use block_breaker_game::vector::Vector;
 
-use ball::Ball;
-use bar::Bar;
-use dimensions::Dimensions;
-use position::Position;
-use vector::Vector;
-
+//Game constants
 const SCREEN_SIZE: (u16, u16) = (800, 500);
 const BAR_DIMENSIONS: (u16, u16) = (100, 25);
+const DESIRED_FPS: u32 = 400;
+const SHIFTER: u16 = 50;
 
 struct MainState {
     bar: Bar,
@@ -44,7 +41,7 @@ impl MainState {
         );
 
         let initial_ball_position = Position::new(200, 250);
-        let initial_ball_power = 10;
+        let initial_ball_power = 1;
 
         let ball = Ball::new(
             initial_ball_position,
@@ -58,18 +55,21 @@ impl MainState {
 
 impl event::EventHandler for MainState {
     fn update(&mut self, ctx: &mut Context) -> GameResult {
-        const DESIRED_FPS: u32 = 80;
-
         while timer::check_update_time(ctx, DESIRED_FPS) {
             self.ball.tick();
             let ball = &mut self.ball;
             let bar = &self.bar;
-            let data = bar.position.y();
+
             let bar_x_min = bar.position.x();
-            let bar_x_max = &bar_x_min + self.bar.dimensions.width();
-            if ball.position.y() > bar.position.y() {
+            let bar_x_max = &bar_x_min + bar.dimensions.width();
+
+            if ball.position.y() > bar.position.y() - ball.radius {
                 if ball.position.x() > bar_x_min && ball.position.x() < bar_x_max {
-                    ball.bounce(Vector::new(0., -2.0));
+                    ball.velocity.negate_y();
+                } else {
+                    println!("Game Over");
+                    ball.position = Position::new(200, 250);
+                    //let _ = event::quit(ctx);
                 }
             }
         }
@@ -97,16 +97,17 @@ impl event::EventHandler for MainState {
             ctx,
             graphics::DrawMode::fill(),
             ball_point,
-            12.0,
+            ball.radius as f32,
             1.0,
             graphics::WHITE,
         )?;
         graphics::draw(ctx, &game_ball, DrawParam::default())?;
         graphics::present(ctx)?;
+        timer::yield_now();
+
         Ok(())
     }
 
-    /// key_down_event gets fired when a key gets pressed.
     fn key_down_event(
         &mut self,
         _ctx: &mut Context,
@@ -114,7 +115,6 @@ impl event::EventHandler for MainState {
         _keymod: KeyMods,
         _repeat: bool,
     ) {
-        const SHIFTER: u16 = 50;
         match keycode {
             KeyCode::Left => {
                 if self.bar.position.x() > 0 {
@@ -130,14 +130,7 @@ impl event::EventHandler for MainState {
         }
     }
 
-    fn key_up_event(&mut self, ctx: &mut Context, keycode: KeyCode, _keymod: KeyMods) {
-        println!("Ball X position {:#?}", self.ball.position.x());
-        println!("Bar X position {:#?}", self.bar.position.x());
-        println!(
-            "Bar X position + width {:#?}",
-            self.bar.position.x() + self.bar.dimensions.width()
-        );
-    }
+    fn key_up_event(&mut self, ctx: &mut Context, keycode: KeyCode, _keymod: KeyMods) {}
 }
 pub fn main() -> GameResult {
     let cb = ggez::ContextBuilder::new("Block Breaker", "Reggie")
