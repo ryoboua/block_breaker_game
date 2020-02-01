@@ -18,14 +18,30 @@ use block_breaker_game::position::Position;
 use block_breaker_game::vector::Vector;
 
 //Game constants
-const SCREEN_SIZE: (u16, u16) = (800, 500);
+const SCREEN_SIZE: (u16, u16) = (800, 600);
 const BAR_DIMENSIONS: (u16, u16) = (100, 25);
 const DESIRED_FPS: u32 = 400;
-const SHIFTER: u16 = 50;
+const BAR_STEP: u16 = 1;
+
+#[derive(Debug)]
+pub struct KeyPressed {
+    pub right: bool,
+    pub left: bool,
+}
+
+impl KeyPressed {
+    pub fn new() -> Self {
+        KeyPressed {
+            right: false,
+            left: false,
+        }
+    }
+}
 
 struct MainState {
     bar: Bar,
     ball: Ball,
+    key_pressed: KeyPressed,
 }
 
 impl MainState {
@@ -33,14 +49,14 @@ impl MainState {
         let game_dimensions = Dimensions::new(SCREEN_SIZE.0, SCREEN_SIZE.1);
 
         let bar_dismensions = Dimensions::new(BAR_DIMENSIONS.0, BAR_DIMENSIONS.1);
-        let initial_bar_position = Position::new(50, 450);
+        let initial_bar_position = Position::new((SCREEN_SIZE.0 - BAR_DIMENSIONS.0) / 2, 550);
         let bar = Bar::new(
             initial_bar_position,
             bar_dismensions,
             game_dimensions.clone(),
         );
 
-        let initial_ball_position = Position::new(200, 250);
+        let initial_ball_position = Position::new(SCREEN_SIZE.0 / 2, SCREEN_SIZE.1 / 2);
         let initial_ball_power = 1;
 
         let ball = Ball::new(
@@ -48,7 +64,11 @@ impl MainState {
             game_dimensions.clone(),
             initial_ball_power,
         );
-        let s = MainState { bar, ball };
+        let s = MainState {
+            bar,
+            ball,
+            key_pressed: KeyPressed::new(),
+        };
         Ok(s)
     }
 }
@@ -56,9 +76,21 @@ impl MainState {
 impl event::EventHandler for MainState {
     fn update(&mut self, ctx: &mut Context) -> GameResult {
         while timer::check_update_time(ctx, DESIRED_FPS) {
-            self.ball.tick();
             let ball = &mut self.ball;
-            let bar = &self.bar;
+            let bar = &mut self.bar;
+            let key_pressed = &self.key_pressed;
+
+            //Handle Bar movement
+            if key_pressed.left && bar.position.x() > 0 {
+                bar.position -= Position::new(BAR_STEP, 0)
+            }
+            if key_pressed.right && bar.position.x() + bar.dimensions.width() < SCREEN_SIZE.0 as u16
+            {
+                bar.position += Position::new(BAR_STEP, 0)
+            }
+
+            //Handle wall bounce
+            ball.handle_wall_bounce();
 
             let bar_x_min = bar.position.x();
             let bar_x_max = &bar_x_min + bar.dimensions.width();
@@ -116,21 +148,18 @@ impl event::EventHandler for MainState {
         _repeat: bool,
     ) {
         match keycode {
-            KeyCode::Left => {
-                if self.bar.position.x() > 0 {
-                    self.bar.position -= Position::new(SHIFTER, 0)
-                }
-            }
-            KeyCode::Right => {
-                if self.bar.position.x() + self.bar.dimensions.width() < SCREEN_SIZE.0 as u16 {
-                    self.bar.position += Position::new(SHIFTER, 0)
-                }
-            }
-            _ => (), // Do nothing
+            KeyCode::Left => self.key_pressed.left = true,
+            KeyCode::Right => self.key_pressed.right = true,
+            _ => (),
         }
     }
-
-    fn key_up_event(&mut self, ctx: &mut Context, keycode: KeyCode, _keymod: KeyMods) {}
+    fn key_up_event(&mut self, ctx: &mut Context, keycode: KeyCode, _keymod: KeyMods) {
+        match keycode {
+            KeyCode::Left => self.key_pressed.left = false,
+            KeyCode::Right => self.key_pressed.right = false,
+            _ => (),
+        }
+    }
 }
 pub fn main() -> GameResult {
     let cb = ggez::ContextBuilder::new("Block Breaker", "Reggie")

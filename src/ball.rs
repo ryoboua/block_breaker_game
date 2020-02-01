@@ -14,7 +14,7 @@ impl Ball {
     pub fn new(position: Position, game_dimensions: Dimensions, power: u16) -> Ball {
         Ball {
             position,
-            velocity: Vector::new(1., 1.),
+            velocity: Vector::new(1., -1.),
             power,
             game_dimensions,
             radius: 12,
@@ -23,7 +23,7 @@ impl Ball {
 
     // Make the ball take a step
     // Handles wall collision
-    pub fn tick(&mut self) {
+    pub fn handle_wall_bounce(&mut self) {
         let new_position = &self.position + &self.velocity;
         //Hit Left or Right wall
         if new_position.x() <= self.radius
