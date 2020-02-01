@@ -36,6 +36,12 @@ impl Vector {
         self.x = -self.x;
         self.y = -self.y;
     }
+    pub fn negate_x(&mut self) {
+        self.x = -self.x;
+    }
+    pub fn negate_y(&mut self) {
+        self.y = -self.y;
+    }
 
     /// Get the length (magnitude) of the vector
     pub fn magnitude(&self) -> f64 {
