@@ -1,6 +1,13 @@
 use crate::dimensions::Dimensions;
 use crate::position::Position;
 
+use crate::BLOCK_DIMENSIONS;
+use crate::BLOCK_ROW_COUNT;
+use crate::BLOCK_COLUMN_COUNT;
+use crate::BLOCK_OFFSET_TOP;
+use crate::BLOCK_OFFSET_LEFT;
+use crate::BLOCK_PADDING;
+
 #[derive(Debug)]
 pub struct Block {
     pub position: Position,
@@ -24,5 +31,26 @@ impl Block {
         } else {
             self.strength -= amount
         }
+    }
+
+    pub fn generate_blocks() -> Vec<Vec<Block>> {
+        let mut blocks = Vec::new();
+
+        for c in 0..BLOCK_COLUMN_COUNT {
+            let col = Vec::new();
+            blocks.push(col);
+            for r in 0..BLOCK_ROW_COUNT {
+                let block = Block::new(
+                    Position::new(
+                        (c as u16 * (BLOCK_DIMENSIONS.0 + BLOCK_PADDING)) + BLOCK_OFFSET_LEFT,
+                        (r as u16 * (BLOCK_DIMENSIONS.1 + BLOCK_PADDING)) + BLOCK_OFFSET_TOP,
+                    ),
+                    Dimensions::new(BLOCK_DIMENSIONS.0, BLOCK_DIMENSIONS.1),
+                    1,
+                );
+                blocks[c].push(block);
+            }
+        }
+        blocks
     }
 }

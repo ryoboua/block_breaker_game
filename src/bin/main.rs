@@ -18,17 +18,10 @@ use block_breaker_game::dimensions::Dimensions;
 use block_breaker_game::position::Position;
 use block_breaker_game::vector::Vector;
 
-//Game constants
-const SCREEN_SIZE: (u16, u16) = (800, 600);
-const BAR_DIMENSIONS: (u16, u16) = (100, 25);
-const DESIRED_FPS: u32 = 400;
-const BAR_STEP: u16 = 1;
-const BLOCK_DIMENSIONS: (u16, u16) = (75, 25);
-const BLOCK_ROW_COUNT: usize = 5;
-const BLOCK_COLUMN_COUNT: usize = 9;
-const BLOCK_OFFSET_TOP: u16 = 10;
-const BLOCK_OFFSET_LEFT: u16 = 10;
-const BLOCK_PADDING: u16 = 10;
+use block_breaker_game::BAR_DIMENSIONS;
+use block_breaker_game::BAR_STEP;
+use block_breaker_game::DESIRED_FPS;
+use block_breaker_game::SCREEN_SIZE;
 
 #[derive(Debug)]
 pub struct KeyPressed {
@@ -54,51 +47,13 @@ struct MainState {
 
 impl MainState {
     fn new() -> GameResult<MainState> {
-        //////
-        let mut blocks = Vec::new();
-
-        for c in 0..BLOCK_COLUMN_COUNT {
-            let col = Vec::new();
-            blocks.push(col);
-            for r in 0..BLOCK_ROW_COUNT {
-                let block = Block::new(
-                    Position::new(
-                        (c as u16 * (BLOCK_DIMENSIONS.0 + BLOCK_PADDING)) + BLOCK_OFFSET_LEFT,
-                        (r as u16 * (BLOCK_DIMENSIONS.1 + BLOCK_PADDING)) + BLOCK_OFFSET_TOP,
-                    ),
-                    Dimensions::new(BLOCK_DIMENSIONS.0, BLOCK_DIMENSIONS.1),
-                    1,
-                );
-                blocks[c].push(block)
-            }
-        }
-
-        //////
-        let game_dimensions = Dimensions::new(SCREEN_SIZE.0, SCREEN_SIZE.1);
-
-        let bar_dismensions = Dimensions::new(BAR_DIMENSIONS.0, BAR_DIMENSIONS.1);
-        let initial_bar_position = Position::new((SCREEN_SIZE.0 - BAR_DIMENSIONS.0) / 2, 550);
-        let bar = Bar::new(
-            initial_bar_position,
-            bar_dismensions,
-            game_dimensions.clone(),
-        );
-
-        let initial_ball_position = Position::new(SCREEN_SIZE.0 / 2, SCREEN_SIZE.1 / 2);
-        let initial_ball_power = 1;
-
-        let ball = Ball::new(
-            initial_ball_position,
-            game_dimensions.clone(),
-            initial_ball_power,
-        );
-        let s = MainState {
-            bar,
-            ball,
+        let main_state = MainState {
+            bar: Bar::new(),
+            ball: Ball::new(),
             key_pressed: KeyPressed::new(),
-            blocks,
+            blocks: Block::generate_blocks(),
         };
-        Ok(s)
+        Ok(main_state)
     }
 }
 
@@ -150,7 +105,7 @@ impl event::EventHandler for MainState {
                     b.position.x() as f32,
                     b.position.y() as f32,
                     b.dimensions.width() as f32,
-                    b.dimensions.height() as f32
+                    b.dimensions.height() as f32,
                 );
                 let blockx = graphics::Mesh::new_rectangle(
                     ctx,
@@ -164,24 +119,6 @@ impl event::EventHandler for MainState {
 
         //mb.build(ctx)?;
 
-
-
-        // let block1 = graphics::Rect::new(
-        //     block.position.x() as f32,
-        //     block.position.y() as f32,
-        //     block.dimensions.width() as f32,
-        //     block.dimensions.height() as f32,
-        // );
-        // let block2 = graphics::Mesh::new_rectangle(
-        //     ctx,
-        //     graphics::DrawMode::fill(),
-        //     block1,
-        //     graphics::WHITE,
-        // )?;
-
-        // graphics::draw(ctx, &block2, DrawParam::default())?;
-
-        /////////////////////////////
         let bar = &self.bar;
         let rect = graphics::Rect::new(
             bar.position.x() as f32,

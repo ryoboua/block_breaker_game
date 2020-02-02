@@ -2,6 +2,8 @@ use crate::dimensions::Dimensions;
 use crate::position::Position;
 use crate::vector::Vector;
 
+use crate::SCREEN_SIZE;
+
 pub struct Ball {
     pub position: Position,
     pub velocity: Vector,
@@ -11,12 +13,15 @@ pub struct Ball {
 }
 
 impl Ball {
-    pub fn new(position: Position, game_dimensions: Dimensions, power: u16) -> Ball {
+    pub fn new() -> Ball {
+        let game_dimensions = Dimensions::new(SCREEN_SIZE.0, SCREEN_SIZE.1);
+        let position = Position::new(SCREEN_SIZE.0 / 2, SCREEN_SIZE.1 / 2);
+
         Ball {
             position,
-            velocity: Vector::new(1., -1.),
-            power,
             game_dimensions,
+            velocity: Vector::new(1., -1.),
+            power: 1,
             radius: 12,
         }
     }
@@ -33,7 +38,7 @@ impl Ball {
         }
         //Hit Top or Bottom wall
         if new_position.y() <= self.radius
-            //|| new_position.y() >= self.game_dimensions.height() - self.radius
+        //|| new_position.y() >= self.game_dimensions.height() - self.radius
         {
             self.velocity.negate_y();
         }
