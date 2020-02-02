@@ -3,3 +3,4 @@ pub mod bar;
 pub mod dimensions;
 pub mod position;
 pub mod vector;
+pub mod block;

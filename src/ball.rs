@@ -33,7 +33,7 @@ impl Ball {
         }
         //Hit Top or Bottom wall
         if new_position.y() <= self.radius
-            || new_position.y() >= self.game_dimensions.height() - self.radius
+            //|| new_position.y() >= self.game_dimensions.height() - self.radius
         {
             self.velocity.negate_y();
         }

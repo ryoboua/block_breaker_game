@@ -1,6 +1,7 @@
 use crate::dimensions::Dimensions;
 use crate::position::Position;
 
+#[derive(Debug)]
 pub struct Block {
     pub position: Position,
     pub dimensions: Dimensions,

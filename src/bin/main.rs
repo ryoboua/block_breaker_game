@@ -13,6 +13,7 @@ use ggez::{Context, GameResult};
 
 use block_breaker_game::ball::Ball;
 use block_breaker_game::bar::Bar;
+use block_breaker_game::block::Block;
 use block_breaker_game::dimensions::Dimensions;
 use block_breaker_game::position::Position;
 use block_breaker_game::vector::Vector;
@@ -22,6 +23,12 @@ const SCREEN_SIZE: (u16, u16) = (800, 600);
 const BAR_DIMENSIONS: (u16, u16) = (100, 25);
 const DESIRED_FPS: u32 = 400;
 const BAR_STEP: u16 = 1;
+const BLOCK_DIMENSIONS: (u16, u16) = (75, 25);
+const BLOCK_ROW_COUNT: usize = 5;
+const BLOCK_COLUMN_COUNT: usize = 9;
+const BLOCK_OFFSET_TOP: u16 = 10;
+const BLOCK_OFFSET_LEFT: u16 = 10;
+const BLOCK_PADDING: u16 = 10;
 
 #[derive(Debug)]
 pub struct KeyPressed {
@@ -42,10 +49,31 @@ struct MainState {
     bar: Bar,
     ball: Ball,
     key_pressed: KeyPressed,
+    blocks: Vec<Vec<Block>>,
 }
 
 impl MainState {
     fn new() -> GameResult<MainState> {
+        //////
+        let mut blocks = Vec::new();
+
+        for c in 0..BLOCK_COLUMN_COUNT {
+            let col = Vec::new();
+            blocks.push(col);
+            for r in 0..BLOCK_ROW_COUNT {
+                let block = Block::new(
+                    Position::new(
+                        (c as u16 * (BLOCK_DIMENSIONS.0 + BLOCK_PADDING)) + BLOCK_OFFSET_LEFT,
+                        (r as u16 * (BLOCK_DIMENSIONS.1 + BLOCK_PADDING)) + BLOCK_OFFSET_TOP,
+                    ),
+                    Dimensions::new(BLOCK_DIMENSIONS.0, BLOCK_DIMENSIONS.1),
+                    1,
+                );
+                blocks[c].push(block)
+            }
+        }
+
+        //////
         let game_dimensions = Dimensions::new(SCREEN_SIZE.0, SCREEN_SIZE.1);
 
         let bar_dismensions = Dimensions::new(BAR_DIMENSIONS.0, BAR_DIMENSIONS.1);
@@ -68,6 +96,7 @@ impl MainState {
             bar,
             ball,
             key_pressed: KeyPressed::new(),
+            blocks,
         };
         Ok(s)
     }
@@ -111,7 +140,48 @@ impl event::EventHandler for MainState {
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
         graphics::clear(ctx, ggez::graphics::BLACK);
+        //let mb = graphics::MeshBuilder::new();
+        let blocks = &self.blocks;
 
+        for c in 0..blocks.len() {
+            for r in 0..blocks[c].len() {
+                let b = &blocks[c][r];
+                let blockrect = graphics::Rect::new(
+                    b.position.x() as f32,
+                    b.position.y() as f32,
+                    b.dimensions.width() as f32,
+                    b.dimensions.height() as f32
+                );
+                let blockx = graphics::Mesh::new_rectangle(
+                    ctx,
+                    DrawMode::fill(),
+                    blockrect,
+                    graphics::WHITE,
+                )?;
+                graphics::draw(ctx, &blockx, DrawParam::new())?;
+            }
+        }
+
+        //mb.build(ctx)?;
+
+
+
+        // let block1 = graphics::Rect::new(
+        //     block.position.x() as f32,
+        //     block.position.y() as f32,
+        //     block.dimensions.width() as f32,
+        //     block.dimensions.height() as f32,
+        // );
+        // let block2 = graphics::Mesh::new_rectangle(
+        //     ctx,
+        //     graphics::DrawMode::fill(),
+        //     block1,
+        //     graphics::WHITE,
+        // )?;
+
+        // graphics::draw(ctx, &block2, DrawParam::default())?;
+
+        /////////////////////////////
         let bar = &self.bar;
         let rect = graphics::Rect::new(
             bar.position.x() as f32,
