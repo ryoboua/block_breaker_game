@@ -1,12 +1,12 @@
 use crate::dimensions::Dimensions;
 use crate::position::Position;
 
-use crate::BLOCK_DIMENSIONS;
-use crate::BLOCK_ROW_COUNT;
 use crate::BLOCK_COLUMN_COUNT;
-use crate::BLOCK_OFFSET_TOP;
+use crate::BLOCK_DIMENSIONS;
 use crate::BLOCK_OFFSET_LEFT;
+use crate::BLOCK_OFFSET_TOP;
 use crate::BLOCK_PADDING;
+use crate::BLOCK_ROW_COUNT;
 
 #[derive(Debug)]
 pub struct Block {

@@ -1,9 +1,9 @@
 pub mod ball;
 pub mod bar;
+pub mod block;
 pub mod dimensions;
 pub mod position;
 pub mod vector;
-pub mod block;
 
 //Game constants
 pub const SCREEN_SIZE: (u16, u16) = (800, 600);

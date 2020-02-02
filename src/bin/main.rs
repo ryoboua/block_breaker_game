@@ -62,6 +62,7 @@ impl event::EventHandler for MainState {
         while timer::check_update_time(ctx, DESIRED_FPS) {
             let ball = &mut self.ball;
             let bar = &mut self.bar;
+            let blocks = &mut self.blocks;
             let key_pressed = &self.key_pressed;
 
             //Handle Bar movement
@@ -76,6 +77,7 @@ impl event::EventHandler for MainState {
             //Handle wall bounce
             ball.handle_wall_bounce();
 
+            //Handle ball & bar collision
             let bar_x_min = bar.position.x();
             let bar_x_max = &bar_x_min + bar.dimensions.width();
 
@@ -86,6 +88,22 @@ impl event::EventHandler for MainState {
                     println!("Game Over");
                     ball.position = Position::new(200, 250);
                     //let _ = event::quit(ctx);
+                }
+            }
+            //Handle ball & block collision
+            for c in 0..blocks.len() {
+                for r in 0..blocks[c].len() {
+                    let block = &mut blocks[c][r];
+                    if block.strength > 0 {
+                        if ball.position.x() > block.position.x()
+                            && ball.position.x() < (block.position.x() + block.dimensions.width())
+                            && ball.position.y() > block.position.y()
+                            && ball.position.y() < (block.position.y() + block.dimensions.height())
+                        {
+                            ball.velocity.negate_y();
+                            block.damage(ball.power);
+                        }
+                    }
                 }
             }
         }
@@ -101,19 +119,21 @@ impl event::EventHandler for MainState {
         for c in 0..blocks.len() {
             for r in 0..blocks[c].len() {
                 let b = &blocks[c][r];
-                let blockrect = graphics::Rect::new(
-                    b.position.x() as f32,
-                    b.position.y() as f32,
-                    b.dimensions.width() as f32,
-                    b.dimensions.height() as f32,
-                );
-                let blockx = graphics::Mesh::new_rectangle(
-                    ctx,
-                    DrawMode::fill(),
-                    blockrect,
-                    graphics::WHITE,
-                )?;
-                graphics::draw(ctx, &blockx, DrawParam::new())?;
+                if b.strength > 0 {
+                    let rect = graphics::Rect::new(
+                        b.position.x() as f32,
+                        b.position.y() as f32,
+                        b.dimensions.width() as f32,
+                        b.dimensions.height() as f32,
+                    );
+                    let block = graphics::Mesh::new_rectangle(
+                        ctx,
+                        DrawMode::fill(),
+                        rect,
+                        graphics::WHITE,
+                    )?;
+                    graphics::draw(ctx, &block, DrawParam::new())?;
+                }
             }
         }
 
