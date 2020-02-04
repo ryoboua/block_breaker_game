@@ -1,12 +1,8 @@
-#![allow(unused_variables)]
-#![allow(unused_imports)]
-
 use ggez;
 use ggez::event;
 use ggez::event::{KeyCode, KeyMods};
 use ggez::graphics;
-use ggez::graphics::StrokeOptions;
-use ggez::graphics::{Color, DrawMode, DrawParam};
+use ggez::graphics::{DrawMode, DrawParam};
 use ggez::nalgebra as na;
 use ggez::timer;
 use ggez::{Context, GameResult};
@@ -14,11 +10,8 @@ use ggez::{Context, GameResult};
 use block_breaker_game::ball::Ball;
 use block_breaker_game::bar::Bar;
 use block_breaker_game::block::Block;
-use block_breaker_game::dimensions::Dimensions;
 use block_breaker_game::position::Position;
-use block_breaker_game::vector::Vector;
 
-use block_breaker_game::BAR_DIMENSIONS;
 use block_breaker_game::BAR_STEP;
 use block_breaker_game::DESIRED_FPS;
 use block_breaker_game::SCREEN_SIZE;
@@ -180,7 +173,7 @@ impl event::EventHandler for MainState {
             _ => (),
         }
     }
-    fn key_up_event(&mut self, ctx: &mut Context, keycode: KeyCode, _keymod: KeyMods) {
+    fn key_up_event(&mut self, _ctx: &mut Context, keycode: KeyCode, _keymod: KeyMods) {
         match keycode {
             KeyCode::Left => self.key_pressed.left = false,
             KeyCode::Right => self.key_pressed.right = false,
