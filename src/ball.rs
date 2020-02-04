@@ -26,7 +26,6 @@ impl Ball {
         }
     }
 
-    // Make the ball take a step
     // Handles wall collision
     pub fn handle_wall_bounce(&mut self) {
         let new_position = &self.position + &self.velocity;
