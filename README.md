@@ -1,6 +1,6 @@
 Block Breaker Game written in Rust.
 
-I made this game to get familliar with Rust.
+I made this mvp block breaker game to get familliar with Rust.
 
 I followed this tutorial to make the game https://developer.mozilla.org/en-US/docs/Games/Tutorials/2D_Breakout_game_pure_JavaScript
 
